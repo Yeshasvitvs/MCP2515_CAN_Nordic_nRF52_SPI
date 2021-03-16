@@ -1,6 +1,7 @@
 #include "mcp_can.h"
 
 #include "app_error.h"
+#include "nrf_gpio.h"
 
 /*********************************************************************************************************
 ** Function name:           MCP_CAN
@@ -23,8 +24,7 @@ void MCP_CAN::init_CS(byte _CS)
         return;
     }
     SPICS = _CS;
-//    pinMode(SPICS, OUTPUT);
-//    digitalWrite(SPICS, HIGH);
+    nrf_gpio_cfg_output(SPICS); // set chip select
 }
 
 void MCP_CAN::setSPI(nrf_drv_spi_t *_pSPI)
