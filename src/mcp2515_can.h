@@ -50,8 +50,6 @@
 #include "mcp_can.h"
 #include "mcp2515_can_dfs.h"
 
-#define MAX_CHAR_IN_MESSAGE 8
-
 class mcp2515_can : public MCP_CAN
 {
 public:

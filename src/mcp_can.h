@@ -5,6 +5,8 @@
 
 #include "nrf_drv_spi.h"
 
+#define MAX_CHAR_IN_MESSAGE 8
+
 #define SPI_INSTANCE  0 /**< SPI instance index. */
 
 // Update alias to "byte" for Arduino type
@@ -111,9 +113,18 @@ public:
     MCP_CAN(byte _CS);
     void init_CS(byte _CS); // define CS after construction before begin()
     void setSPI(nrf_drv_spi_t *_pSPI);
+    void setSPIConfig(nrf_drv_spi_config_t * _pConfig);
     void initSPI(); // initialize SPI;
-    void spiEventHandler();
     static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
+    
+    // SPI read write
+    byte spi_readwrite(const byte& buf);
+    byte spi_read();
+    byte spi_write(const byte buf);
+
+    static byte spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
+    static byte spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
+    static byte spi_m_length;                         /**< Transfer length. */
 
 protected:
     byte ext_flg; // identifier xxxID

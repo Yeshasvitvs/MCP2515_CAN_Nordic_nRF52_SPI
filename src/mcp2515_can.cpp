@@ -56,28 +56,6 @@
 //#define SPI_BEGIN()        pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
 //#define SPI_END()          pSPI->endTransaction()
 
-// SPI read write
-byte spi_readwrite()
-{
-  //TODO
-}
-
-byte spi_readwrite(byte buf)
-{
-  //TODO
-}
-
-byte spi_read()
-{
-  //TODO
-}
-
-byte spi_write(byte buf)
-{
-  //TODO
-}
-
-
 /*********************************************************************************************************
 ** Function name:           txCtrlReg
 ** Descriptions:            return tx ctrl reg according to tx buffer index.

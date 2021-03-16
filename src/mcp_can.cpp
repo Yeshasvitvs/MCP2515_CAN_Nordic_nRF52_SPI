@@ -1,5 +1,7 @@
 #include "mcp_can.h"
 
+#include "app_error.h"
+
 /*********************************************************************************************************
 ** Function name:           MCP_CAN
 ** Descriptions:            Constructor
@@ -30,11 +32,6 @@ void MCP_CAN::setSPI(nrf_drv_spi_t *_pSPI)
     pSPI = _pSPI; // define SPI port to use before begin()
 }
 
-// nrf spi event handler
-void MCP_CAN::spiEventHandler()
-{
-}
-
 /**
  * @brief SPI user event handler.
  * @param event
@@ -55,4 +52,29 @@ void MCP_CAN::initSPI()
     spi_config.mosi_pin = SPI_MOSI_PIN;
     spi_config.sck_pin  = SPI_SCK_PIN;
     APP_ERROR_CHECK(nrf_drv_spi_init(pSPI, &spi_config, spi_event_handler, NULL));
+}
+
+// Set nrf spi configuration
+void MCP_CAN::setSPIConfig(nrf_drv_spi_config_t * _pConfig)
+{
+  APP_ERROR_CHECK(nrf_drv_spi_init(pSPI, _pConfig, spi_event_handler, NULL));
+}
+
+// SPI read write
+byte MCP_CAN::spi_readwrite(const byte& buf)
+{
+  spi_m_length = 0;
+  *spi_m_tx_buf = buf;
+  nrf_drv_spi_transfer(pSPI, spi_m_tx_buf, sizeof(spi_m_tx_buf), spi_m_rx_buf, spi_m_length);
+  return *spi_m_rx_buf;
+}
+
+byte MCP_CAN::spi_read()
+{
+  return spi_readwrite(0x00);
+}
+
+byte MCP_CAN::spi_write(const byte buf)
+{
+  return spi_readwrite(buf);
 }
