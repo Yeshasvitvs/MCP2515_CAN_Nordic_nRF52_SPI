@@ -102,8 +102,6 @@ public:
     virtual byte checkClearRxStatus(byte *status);                                                                                                      // read and clear and return first found rx status bit
     virtual byte checkClearTxStatus(byte *status, byte iTxBuf = 0xff);                                                                                  // read and clear and return first found or buffer specified tx status bit
     virtual bool mcpPinMode(const byte pin, const byte mode);                                                                                           // switch supported pins between HiZ, interrupt, output or input
-    virtual bool mcpDigitalWrite(const byte pin, const byte mode);                                                                                      // write HIGH or LOW to RX0BF/RX1BF
-    virtual byte mcpDigitalRead(const byte pin);
 
 private:
     void mcp2515_reset(void); // reset mcp2515

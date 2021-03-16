@@ -1,9 +1,14 @@
 #ifndef _MCP_CAN_H_
 #define _MCP_CAN_H_
 
-#include <Arduino.h>
-#include <SPI.h>
 #include <inttypes.h>
+
+#include "nrf_drv_spi.h"
+
+#define SPI_INSTANCE  0 /**< SPI instance index. */
+
+// Update alias to "byte" for Arduino type
+typedef uint8_t byte; 
 
 #define CAN_OK              (0)
 #define CAN_FAILINIT        (1)
@@ -105,7 +110,10 @@ public:
 public:
     MCP_CAN(byte _CS);
     void init_CS(byte _CS); // define CS after construction before begin()
-    void setSPI(SPIClass *_pSPI);
+    void setSPI(nrf_drv_spi_t *_pSPI);
+    void initSPI(); // initialize SPI;
+    void spiEventHandler();
+    static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
 
 protected:
     byte ext_flg; // identifier xxxID
@@ -113,7 +121,7 @@ protected:
     unsigned long can_id; // can id
     byte rtr;             // is remote frame
     byte SPICS;
-    SPIClass *pSPI;
+    nrf_drv_spi_t *pSPI;
     byte mcpMode;     // Current controller mode
 };
 

@@ -48,11 +48,35 @@
 #define DEBUG_EN 0
 #include "mcp2515_can.h"
 
-#define spi_readwrite      pSPI->transfer
-#define spi_read()         spi_readwrite(0x00)
-#define spi_write(spi_val) spi_readwrite(spi_val)
-#define SPI_BEGIN()        pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
-#define SPI_END()          pSPI->endTransaction()
+#include "nrf_delay.h"
+
+//#define spi_readwrite      pSPI->transfer
+//#define spi_read()         spi_readwrite(0x00)
+//#define spi_write(spi_val) spi_readwrite(spi_val)
+//#define SPI_BEGIN()        pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
+//#define SPI_END()          pSPI->endTransaction()
+
+// SPI read write
+byte spi_readwrite()
+{
+  //TODO
+}
+
+byte spi_readwrite(byte buf)
+{
+  //TODO
+}
+
+byte spi_read()
+{
+  //TODO
+}
+
+byte spi_write(byte buf)
+{
+  //TODO
+}
+
 
 /*********************************************************************************************************
 ** Function name:           txCtrlReg
@@ -162,7 +186,7 @@ void mcp2515_can::mcp2515_reset(void) {
     #ifdef SPI_HAS_TRANSACTION
     SPI_END();
     #endif
-    delay(10);
+    nrf_delay_ms(10);
 }
 
 /*********************************************************************************************************
@@ -385,23 +409,23 @@ byte mcp2515_can::mcp2515_setCANCTRL_Mode(const byte newmode) {
 ** Function name:           mcp2515_requestNewMode
 ** Descriptions:            Set control mode
 *********************************************************************************************************/
-byte mcp2515_can::mcp2515_requestNewMode(const byte newmode) {
-    unsigned long startTime = millis();
-
-    // Spam new mode request and wait for the operation  to complete
-    while (1) {
-        // Request new mode
-        // This is inside the loop as sometimes requesting the new mode once doesn't work (usually when attempting to sleep)
-        mcp2515_modifyRegister(MCP_CANCTRL, MODE_MASK, newmode);
-
-        byte statReg = mcp2515_readRegister(MCP_CANSTAT);
-        if ((statReg & MODE_MASK) == newmode) { // We're now in the new mode
-            return MCP2515_OK;
-        } else if ((millis() - startTime) > 200) { // Wait no more than 200ms for the operation to complete
-            return MCP2515_FAIL;
-        }
-    }
-}
+//byte mcp2515_can::mcp2515_requestNewMode(const byte newmode) {
+//    unsigned long startTime = millis();
+//
+//    // Spam new mode request and wait for the operation  to complete
+//    while (1) {
+//        // Request new mode
+//        // This is inside the loop as sometimes requesting the new mode once doesn't work (usually when attempting to sleep)
+//        mcp2515_modifyRegister(MCP_CANCTRL, MODE_MASK, newmode);
+//
+//        byte statReg = mcp2515_readRegister(MCP_CANSTAT);
+//        if ((statReg & MODE_MASK) == newmode) { // We're now in the new mode
+//            return MCP2515_OK;
+//        } else if ((millis() - startTime) > 200) { // Wait no more than 200ms for the operation to complete
+//            return MCP2515_FAIL;
+//        }
+//    }
+//}
 
 /*********************************************************************************************************
 ** Function name:           mcp2515_configRate
@@ -677,14 +701,14 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter setting mode fail"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("Enter setting mode success "));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
 
     // set boadrate
@@ -692,14 +716,14 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("set rate fall!!"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("set rate success!!"));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
 
     if (res == MCP2515_OK) {
@@ -731,7 +755,7 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
             #if DEBUG_EN
             SERIAL_PORT_MONITOR.println(F("Enter Normal Mode Fail!!"));
             #else
-            delay(10);
+            nrf_delay_ms(10);
             #endif
             return res;
         }
@@ -740,7 +764,7 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter Normal Mode Success!!"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
 
     }
@@ -944,7 +968,7 @@ byte mcp2515_can::mcp2515_getNextFreeTXBuf(byte* txbuf_n) {               // get
 ** Descriptions:            init can and set speed
 *********************************************************************************************************/
 byte mcp2515_can::begin(uint32_t speedset, const byte clockset) {
-    pSPI->begin();
+    this->initSPI();
     byte res = mcp2515_init((byte)speedset, clockset);
 
     return ((res == MCP2515_OK) ? CAN_OK : CAN_FAILINIT);
@@ -975,14 +999,14 @@ byte mcp2515_can::init_Mask(byte num, byte ext, unsigned long ulData) {
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("Begin to set Mask!!"));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
     res = mcp2515_setCANCTRL_Mode(MODE_CONFIG);
     if (res > 0) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter setting mode fall"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
@@ -1001,14 +1025,14 @@ byte mcp2515_can::init_Mask(byte num, byte ext, unsigned long ulData) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter normal mode fall"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("set Mask success!!"));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
     return res;
 }
@@ -1022,14 +1046,14 @@ byte mcp2515_can::init_Filt(byte num, byte ext, unsigned long ulData) {
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("Begin to set Filter!!"));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
     res = mcp2515_setCANCTRL_Mode(MODE_CONFIG);
     if (res > 0) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter setting mode fall"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
@@ -1068,14 +1092,14 @@ byte mcp2515_can::init_Filt(byte num, byte ext, unsigned long ulData) {
         #if DEBUG_EN
         SERIAL_PORT_MONITOR.println(F("Enter normal mode fall\r\nSet filter fail!!"));
         #else
-        delay(10);
+        nrf_delay_ms(10);
         #endif
         return res;
     }
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("set Filter success!!"));
     #else
-    delay(10);
+    nrf_delay_ms(10);
     #endif
 
     return res;
@@ -1135,7 +1159,7 @@ byte mcp2515_can::sendMsg(unsigned long id, byte ext, byte rtrBit, byte len, con
 
     do {
         if (uiTimeOut > 0) {
-            delayMicroseconds(10);
+            nrf_delay_us(10);
         }
         res = mcp2515_getNextFreeTXBuf(&txbuf_n);                       // info = addr.
         uiTimeOut++;
@@ -1150,7 +1174,7 @@ byte mcp2515_can::sendMsg(unsigned long id, byte ext, byte rtrBit, byte len, con
         uiTimeOut = 0;
         do {
             if (uiTimeOut > 0) {
-                delayMicroseconds(10);
+                nrf_delay_us(10);
             }
             uiTimeOut++;
             res1 = mcp2515_readRegister(txbuf_n - 1);  // read send buff ctrl reg
@@ -1352,7 +1376,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("Entering Configuration Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1374,7 +1398,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("`Setting ID Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1386,7 +1410,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("Entering Configuration Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1408,7 +1432,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("`Setting ID Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1420,7 +1444,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("Entering Configuration Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1442,7 +1466,7 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
                 #if DEBUG_EN
                 SERIAL_PORT_MONITOR.println(F("`Setting ID Mode Failure..."));
                 #else
-                delay(10);
+                nrf_delay_ms(10);
                 #endif
                 return false;
             }
@@ -1453,91 +1477,6 @@ bool mcp2515_can::mcpPinMode(const byte pin, const byte mode) {
             SERIAL_PORT_MONITOR.println(F("Invalid pin for mode request"));
             #endif
             return false;
-    }
-}
-
-/*********************************************************************************************************
-** Function name:           mcpDigitalWrite
-** Descriptions:            write HIGH or LOW to RX0BF/RX1BF
-*********************************************************************************************************/
-bool mcp2515_can::mcpDigitalWrite(const byte pin, const byte mode) {
-    switch (pin) {
-        case MCP_RX0BF:
-            switch (mode) {
-                case HIGH:
-                    mcp2515_modifyRegister(MCP_BFPCTRL, B0BFS, B0BFS);
-                    return true;
-                    break;
-                default:
-                    mcp2515_modifyRegister(MCP_BFPCTRL, B0BFS, 0);
-                    return true;
-            }
-            break;
-        case MCP_RX1BF:
-            switch (mode) {
-                case HIGH:
-                    mcp2515_modifyRegister(MCP_BFPCTRL, B1BFS, B1BFS);
-                    return true;
-                    break;
-                default:
-                    mcp2515_modifyRegister(MCP_BFPCTRL, B1BFS, 0);
-                    return true;
-            }
-            break;
-        default:
-            #if DEBUG_EN
-            SERIAL_PORT_MONITOR.println(F("Invalid pin for mcpDigitalWrite"));
-            #endif
-            return false;
-    }
-}
-
-/*********************************************************************************************************
-** Function name:           mcpDigitalRead
-** Descriptions:            read HIGH or LOW from supported pins
-*********************************************************************************************************/
-byte mcp2515_can::mcpDigitalRead(const byte pin) {
-    switch (pin) {
-        case MCP_RX0BF:
-            if ((mcp2515_readRegister(MCP_BFPCTRL) & B0BFS) > 0) {
-                return HIGH;
-            } else {
-                return LOW;
-            }
-            break;
-        case MCP_RX1BF:
-            if ((mcp2515_readRegister(MCP_BFPCTRL) & B1BFS) > 0) {
-                return HIGH;
-            } else {
-                return LOW;
-            }
-            break;
-        case MCP_TX0RTS:
-            if ((mcp2515_readRegister(MCP_TXRTSCTRL) & B0RTS) > 0) {
-                return HIGH;
-            } else {
-                return LOW;
-            }
-            break;
-        case MCP_TX1RTS:
-            if ((mcp2515_readRegister(MCP_TXRTSCTRL) & B1RTS) > 0) {
-                return HIGH;
-            } else {
-                return LOW;
-            }
-            break;
-        case MCP_TX2RTS:
-            if ((mcp2515_readRegister(MCP_TXRTSCTRL) & B2RTS) > 0) {
-                return HIGH;
-            } else {
-                return LOW;
-            }
-            break;
-        default:
-            #if DEBUG_EN
-            SERIAL_PORT_MONITOR.println(F("Invalid pin for mcpDigitalRead"));
-            #endif
-            return LOW;
     }
 }
 

@@ -48,10 +48,9 @@
 #ifndef _MCP2515DFS_H_
 #define _MCP2515DFS_H_
 
-#include <Arduino.h>
-#include <SPI.h>
 #include <inttypes.h>
 
+#include "nrf_gpio.h"
 
 // if print debug information
 #ifndef DEBUG_EN
@@ -416,8 +415,8 @@
 #define MCP_RXBUF_0 (MCP_RXB0SIDH)
 #define MCP_RXBUF_1 (MCP_RXB1SIDH)
 
-#define MCP2515_SELECT()   digitalWrite(SPICS, LOW)
-#define MCP2515_UNSELECT() digitalWrite(SPICS, HIGH)
+#define MCP2515_SELECT()   nrf_gpio_pin_clear(SPICS)
+#define MCP2515_UNSELECT() nrf_gpio_pin_set(SPICS)
 
 #define MCP2515_OK         (0)
 #define MCP2515_FAIL       (1)
