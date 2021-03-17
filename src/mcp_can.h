@@ -57,6 +57,10 @@ typedef enum {
     CAN_1000KBPS
 } MCP_BITTIME_SETUP;
 
+static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
+static byte spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
+static byte spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
+static byte spi_m_length;                         /**< Transfer length. */
 
 class MCP_CAN
 {
@@ -105,9 +109,7 @@ public:
     virtual byte readRxTxStatus(void) = 0;                                              // read has something send or received
     virtual byte checkClearRxStatus(byte *status) = 0;                                  // read and clear and return first found rx status bit
     virtual byte checkClearTxStatus(byte *status, byte iTxBuf = 0xff) = 0;              // read and clear and return first found or buffer specified tx status bit
-    virtual bool mcpPinMode(const byte pin, const byte mode) = 0;                       // switch supported pins between HiZ, interrupt, output or input
-    virtual bool mcpDigitalWrite(const byte pin, const byte mode) = 0;                  // write HIGH or LOW to RX0BF/RX1BF
-    virtual byte mcpDigitalRead(const byte pin) = 0;                                    // read HIGH or LOW from supported pins
+    virtual bool mcpPinMode(const byte pin, const byte mode) = 0;                       // switch supported pins between HiZ, interrupt, output or input                                  // read HIGH or LOW from supported pins
 
 public:
     MCP_CAN(byte _CS);
@@ -115,16 +117,11 @@ public:
     void setSPI(nrf_drv_spi_t *_pSPI);
     void setSPIConfig(nrf_drv_spi_config_t * _pConfig);
     void initSPI(); // initialize SPI;
-    static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
     
     // SPI read write
     byte spi_readwrite(const byte& buf);
     byte spi_read();
     byte spi_write(const byte buf);
-
-    static byte spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
-    static byte spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
-    static byte spi_m_length;                         /**< Transfer length. */
 
 protected:
     byte ext_flg; // identifier xxxID

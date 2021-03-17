@@ -39,7 +39,7 @@ void MCP_CAN::setSPI(nrf_drv_spi_t *_pSPI)
 void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                        void *                    p_context)
 {
-    MCP_CAN::spi_xfer_done = true;
+    spi_xfer_done = true;
     // TODO
 }
 
