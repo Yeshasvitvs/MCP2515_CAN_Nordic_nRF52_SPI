@@ -951,7 +951,9 @@ byte mcp2515_can::mcp2515_getNextFreeTXBuf(byte* txbuf_n) {               // get
 ** Descriptions:            init can and set speed
 *********************************************************************************************************/
 byte mcp2515_can::begin(uint32_t speedset, const byte clockset) {
-    this->initSPI();
+    
+    if(!this->spiInitialized) this->initSPI();
+
     byte res = mcp2515_init((byte)speedset, clockset);
 
     return ((res == MCP2515_OK) ? CAN_OK : CAN_FAILINIT);

@@ -49,6 +49,8 @@ void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
 // Initialize nrf spi instance
 void MCP_CAN::initSPI()
 {
+    this->spiInitialized = false;
+
     pSPI = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */;
 
     nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
@@ -56,9 +58,13 @@ void MCP_CAN::initSPI()
     spi_config.miso_pin = SPI_MISO_PIN;
     spi_config.mosi_pin = SPI_MOSI_PIN;
     spi_config.sck_pin  = SPI_SCK_PIN;
+    spi_config.bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
+
     APP_ERROR_CHECK(nrf_drv_spi_init(&pSPI, &spi_config, spi_event_handler, NULL));
 
     SEGGER_RTT_printf(0, "Initialized SPI ... \n");
+
+    this->spiInitialized = true;
 
 }
 

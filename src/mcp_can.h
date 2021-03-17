@@ -130,6 +130,7 @@ protected:
     byte rtr;             // is remote frame
     byte SPICS;
     nrf_drv_spi_t pSPI;
+    bool spiInitialized;
     byte mcpMode;     // Current controller mode
 };
 
