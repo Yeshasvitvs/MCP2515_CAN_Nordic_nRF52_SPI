@@ -7,7 +7,7 @@
 
 #define MAX_CHAR_IN_MESSAGE 8
 
-#define SPI_INSTANCE  0 /**< SPI instance index. */
+#define SPI_INSTANCE  1 /**< SPI instance index. */
 
 // Update alias to "byte" for Arduino type
 typedef uint8_t byte; 
@@ -58,9 +58,9 @@ typedef enum {
 } MCP_BITTIME_SETUP;
 
 static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
-static byte spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
-static byte spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
-static byte spi_m_length;                         /**< Transfer length. */
+static uint8_t spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
+static uint8_t spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
+static uint8_t spi_m_length;                         /**< Transfer length. */
 
 class MCP_CAN
 {
@@ -119,7 +119,7 @@ public:
     void initSPI(); // initialize SPI;
     
     // SPI read write
-    byte spi_readwrite(const byte& buf);
+    byte spi_readwrite(const byte buf);
     byte spi_read();
     byte spi_write(const byte buf);
 
@@ -129,7 +129,7 @@ protected:
     unsigned long can_id; // can id
     byte rtr;             // is remote frame
     byte SPICS;
-    nrf_drv_spi_t *pSPI;
+    nrf_drv_spi_t pSPI;
     byte mcpMode;     // Current controller mode
 };
 

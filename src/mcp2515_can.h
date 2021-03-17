@@ -50,21 +50,10 @@
 #include "mcp_can.h"
 #include "mcp2515_can_dfs.h"
 
-// Utility functions for time
-// Ref: https://devzone.nordicsemi.com/nordic/nordic-blog/b/blog/posts/using-millis-like-in-arduino
-#include "app_timer.h"
-static uint32_t millis()
-{
-  return(app_timer_cnt_get() / 32.768);
-}
+#include "SEGGER_RTT.h"
 
-#define OVERFLOW ((uint32_t)(0xFFFFFFFF/32.768))
-
-static uint32_t compareMillis(uint32_t previousMillis, uint32_t currentMillis)
-{
-  if(currentMillis < previousMillis) return(currentMillis + OVERFLOW + 1 - previousMillis);
-  return(currentMillis - previousMillis);
-}
+static uint32_t INIT_COUNTER = 0;
+static uint32_t TIMEOUT = 200;
 
 class mcp2515_can : public MCP_CAN
 {

@@ -50,6 +50,8 @@
 
 #include "nrf_delay.h"
 
+#include "SEGGER_RTT.h"
+
 //#define spi_readwrite      pSPI->transfer
 //#define spi_read()         spi_readwrite(0x00)
 //#define spi_write(spi_val) spi_readwrite(spi_val)
@@ -388,18 +390,20 @@ byte mcp2515_can::mcp2515_setCANCTRL_Mode(const byte newmode) {
 ** Descriptions:            Set control mode
 *********************************************************************************************************/
 byte mcp2515_can::mcp2515_requestNewMode(const byte newmode) {
-    unsigned long startTime = millis();
+    
+    INIT_COUNTER = 0;
 
     // Spam new mode request and wait for the operation  to complete
     while (1) {
         // Request new mode
         // This is inside the loop as sometimes requesting the new mode once doesn't work (usually when attempting to sleep)
         mcp2515_modifyRegister(MCP_CANCTRL, MODE_MASK, newmode);
+        INIT_COUNTER++;
 
         byte statReg = mcp2515_readRegister(MCP_CANSTAT);
         if ((statReg & MODE_MASK) == newmode) { // We're now in the new mode
             return MCP2515_OK;
-        } else if (compareMillis(startTime, millis()) > 200) { // Wait no more than 200ms for the operation to complete
+        } else if (INIT_COUNTER > TIMEOUT) { // Wait no more than 200ms for the operation to complete
             return MCP2515_FAIL;
         }
     }
@@ -683,6 +687,7 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
         #endif
         return res;
     }
+    
     #if DEBUG_EN
     SERIAL_PORT_MONITOR.println(F("Enter setting mode success "));
     #else
@@ -747,7 +752,7 @@ byte mcp2515_can::mcp2515_init(const byte canSpeed, const byte clock) {
 
     }
     return res;
-
+    
 }
 
 /*********************************************************************************************************
