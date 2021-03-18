@@ -2,6 +2,7 @@
 
 #include "app_error.h"
 #include "nrf_gpio.h"
+#include "nrf_delay.h"
 
 #include "cstring"
 
@@ -27,7 +28,6 @@ void MCP_CAN::init_CS(byte _CS)
         return;
     }
     SPICS = _CS;
-    nrf_gpio_cfg_output(SPICS); // set chip select
 }
 
 void MCP_CAN::setSPI(nrf_drv_spi_t *_pSPI)
@@ -77,18 +77,21 @@ void MCP_CAN::setSPIConfig(nrf_drv_spi_config_t * _pConfig)
 // SPI read write
 byte MCP_CAN::spi_readwrite(const byte buf)
 {
-  uint8_t p_tx_data;
-  uint8_t p_rx_data;
-  const uint16_t len = 0;
-  p_tx_data = buf;
+  uint8_t p_rx_data = 0;
+  
+  // NOTE: Always sending 1 byte message through SPI
+  if (nrf_drv_spi_transfer(&pSPI, &buf, 1, &p_rx_data, 1) == NRF_SUCCESS)
+  {
+    //SEGGER_RTT_printf(0, " SPI transfer success \n");
+    nrf_delay_us(1);
+  }
 
-  p_rx_data = nrf_drv_spi_transfer(&pSPI, &p_tx_data, sizeof(p_tx_data), &p_rx_data, len);
-  return p_rx_data; //NOTE: Returning just the first byte in RX buf
+  if (p_rx_data != 0)
+  {
+    //SEGGER_RTT_printf(0, " Received: %" PRIu8 "\n", spi_m_rx_buf[0]);
+  }
 
-//  spi_m_length = 0;
-//  memset(&spi_m_tx_buf, buf, sizeof(buf));
-//  nrf_drv_spi_transfer(&pSPI, spi_m_tx_buf, sizeof(spi_m_tx_buf), spi_m_rx_buf, spi_m_length);
-//  return spi_m_rx_buf[0]; //NOTE: Returning just the first byte in RX buf
+  return p_rx_data;
 }
 
 byte MCP_CAN::spi_read()

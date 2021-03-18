@@ -58,9 +58,6 @@ typedef enum {
 } MCP_BITTIME_SETUP;
 
 static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
-static uint8_t spi_m_tx_buf[MAX_CHAR_IN_MESSAGE];    /**< TX buffer. */
-static uint8_t spi_m_rx_buf[MAX_CHAR_IN_MESSAGE];    /**< RX buffer. */
-static uint8_t spi_m_length;                         /**< Transfer length. */
 
 class MCP_CAN
 {
